@@ -1,0 +1,14 @@
+Instrucciones para cargar los de registros del GPS en Viking
+-------------------------------------------------------------
+
+IMPORTANTE 1:
+Instalar el programa Viking. Se encuentra en los repositorios de Ubuntu.
+
+Procedimiento:
+--------------
+1. Para cargar el mapa hacer clic derecho en el panel de la izquierda y agregar
+   "Nueva capa Map". Seleccionar el tipo de mapa "OpenStreetMap (Mapnik)" y
+   tildar "Autodescargar mapas". Luego aceptar
+
+2. Abrir los archivos "***.gpx" y sólo los ubicará en la ubicación
+   geográfica correspondiente.

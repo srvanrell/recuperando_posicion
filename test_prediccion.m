@@ -6,28 +6,26 @@ clear all; close all; clc;
 % - �Mejora al tomar tiempos del GPS en vez de 1 segundo?
 % - Revisar definici�n de R (covarianza del ruido de medici�n)
 
-%% Cargo los datos de aceleraci�n
+%% Cargo los datos de aceleracion
 
-tipo_trayectoria = 'Cuadrado';
+clc; clear all; close all;
 
-a_med = load(['IMUmovil-' tipo_trayectoria '-data.txt']); % aceleracion medida
-% a_med = ACCEL;
-% bias_acel = 0.0221;
-% a_med = a_med - bias_acel;
-a_med = 9.81 .* a_med; % 1g --> 9.81 m/s^2
-% a_med(:,2) = zeros(size(a_med,1),1); % para eliminar la componente de la
-% gravedad?
+% tipo_trayectoria = 'P1_Encerrado_soloIMU_100Hz';
+% tipo_trayectoria = 'P2_Encerrado_GPS_IMU_1Hz';
+tipo_trayectoria = 'P3_Pastoreo_GPS_IMU_1Hz';
+% tipo_trayectoria = 'P4_Pastoreo_IMU_100Hz';
+
+% dt = 1;
+% xyz2neg(tipo_trayectoria,dt)
 
 
+load(['a-' tipo_trayectoria '.mat'])
+dt = a.dt;
+% a.g = a.g - 9.81; % cancelo la gravedad
+a_med = horzcat(a.norte, a.este, a.g);
 
 N=size(a_med,1);
-
-
-
-
-
-
-t=1:N; % vector de tiempos dale que se tomaron muestras cada 1 segundo
+t=0:dt:dt*(N-1); % vector de tiempos dale que se tomaron muestras cada 1 segundo
 
 
 
@@ -47,19 +45,21 @@ t=1:N; % vector de tiempos dale que se tomaron muestras cada 1 segundo
 %% Varianza en el error de medici�n
 % Estimada a partir del registro de la IMUquieta
 load('IMUQuieta');
-% mean(ACCEL)
+% mean(ACCEL);
 bias_acel = 0.0223;
-% var_error_med = var((ACCEL-bias_acel) * 9.81);  % 1g --> 9.81 m/s^2
+var_error_med = var((ACCEL-bias_acel) * 9.81);  % 1g --> 9.81 m/s^2
 
-a_med2 = a_med - repmat(mean(a_med,1),N,1);
-var_error_med = var(a_med2(1:20,:));
+var_error_med = 0.1 * [1 1 1];
+
+% a_med2 = a_med - repmat(mean(a_med,1),N,1);
+% var_error_med = var(a_med2(1:20,:));
 
 
 %% estados
 % [p_x, v_x, a_x, p_y, v_y, a_y, p_z, v_z, a_z]
 
 x0 = zeros(9,1);        % Estado inicial nulo
-dt = 1;                 % Intervalo de muestreo (1 s)
+dt = a.dt;                 % Intervalo de muestreo
                         
 %% Reservo espacio para los estados estimados
 
@@ -121,7 +121,7 @@ Q = blkdiag(Qx,Qy,Qz);  % Matriz de covarianza del ruido del proceso
 %% Matriz de covarianza del ruido de medici�n ( R = E(v*v') )
 % Los supongo independientes??
 
-R = diag(var_error_med); % Varianza del error de medicion en cada eje
+R = .75*diag(var_error_med); % Varianza del error de medicion en cada eje
 
 
 %% Matriz de covarianza del error de estimaci�n de los estados (P)
@@ -150,14 +150,14 @@ for j=2:N
     
     a_est(j,:) = ( H * x(:,j) )'; % salida estimada del sistema
     
-% figure(2)
-%     hold on
-%     plot(j,K(1),j,K(2),j,K(3),j,K(4),j,K(5),j,K(6))
+    pnorma(j) = norm(P);
 end
 
+figure(2)
+plot(pnorma)
 %%
 figure(1)
-eje = ['x'; 'y'; 'z'];
+eje = ['norte...'; 'este....'; 'gravedad'];
 for j = 1:3:7
     subplot(3,3,j), plot(t,x(j,:),'--'); axis tight
     title(['Posicion en el eje ' eje((j+2)/3)])

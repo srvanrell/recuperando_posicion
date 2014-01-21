@@ -6,9 +6,9 @@
 
 clc; clear all; close all;
 
-% tipo_trayectoria = 'P1_Encerrado_soloIMU_100Hz';
+tipo_trayectoria = 'P1_Encerrado_soloIMU_100Hz';
 % tipo_trayectoria = 'P2_Encerrado_GPS_IMU_1Hz';
-tipo_trayectoria = 'P3_Pastoreo_GPS_IMU_1Hz';
+% tipo_trayectoria = 'P3_Pastoreo_GPS_IMU_1Hz';
 % tipo_trayectoria = 'P4_Pastoreo_IMU_100Hz';
 
 % dt = 1;
@@ -86,6 +86,7 @@ plot3(p(:,1), p(:,2), p(:,3))
 xlabel('norte')
 ylabel('este')
 zlabel('gravedad')
+view([-90 90]) % Para ver norte hacia arriba y este a la izquierda
 
 
 %% Variacion de los ejes en el tiempo

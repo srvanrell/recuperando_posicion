@@ -1,45 +1,41 @@
 %%
 %%
-% Obtención de la velocidad y posición por integración de orden cero a
-% partir de la aceleración.
+% Obtenciï¿½n de la velocidad y posiciï¿½n por integraciï¿½n de orden cero a
+% partir de la aceleraciï¿½n.
 %
-% Objetivo: comparar con la estimación al utilizar el filtro de kalman.
+% Objetivo: comparar con la estimaciï¿½n al utilizar el filtro de kalman.
 
 clc; clear all; close all;
 
-tipo_trayectoria = 'Cuadrado';
+% tipo_trayectoria = 'P1_Encerrado_soloIMU_100Hz';
+% tipo_trayectoria = 'P2_Encerrado_GPS_IMU_1Hz';
+% tipo_trayectoria = 'P3_Pastoreo_GPS_IMU_1Hz';
+% tipo_trayectoria = 'P4_Pastoreo_IMU_100Hz';
 
-% Cargo la aceleración y genero velocidad y posición
-a = load(['IMUmovil-' tipo_trayectoria '-data.txt']);
+% dt = 1;
+% xyz2neg(tipo_trayectoria,dt)
 
-%% Carga de la aceleración de la IMU Quieta
-load('IMUQuieta');
-a = ACCEL;
 
-%%
-bias_acel = 0.0221;
-a = a - bias_acel;
-a = 9.81 .* a; % 1g --> 9.81 m/s^2
-a(:,2) = zeros(size(a,1),1); % anulo gravedad
+load(['a-' tipo_trayectoria '.mat'])
+dt = a.dt;
+a.g = a.g - 9.81;
+a = horzcat(a.norte, a.este, a.g);
 
 
 v = zeros(size(a)); % velocidad
 p = zeros(size(a)); % posicion
 
-% Tomo 1 segundo como intervalo de muestreo pero... ¿debería sacarlo de los
-% datos del GPS??
-dt = 1;
 N = size(a,1); % cantidad de muestras
 
 
 % a = a - repmat(mean(a,1),N,1);
-%% Ecuación recursiva de la velocidad
+%% Ecuaciï¿½n recursiva de la velocidad
 % v(k) = v(k-1) + a(k) * dt
 
-%% Ecuación recursiva de la posición
+%% Ecuaciï¿½n recursiva de la posiciï¿½n
 % p(k) = p(k-1) + v(k) * dt
 
-% TODO Implementación ineficiente (hacerlo con matrices)
+% TODO Implementaciï¿½n ineficiente (hacerlo con matrices)
 
 for k = 2:N
     v(k,:) = v(k-1,:) + a(k,:) .* dt;
